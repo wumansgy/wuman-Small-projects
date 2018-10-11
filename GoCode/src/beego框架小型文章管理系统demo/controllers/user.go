@@ -50,7 +50,14 @@ func(this*UserController)HandlePost(){
 
 //展示登录页面
 func(this*UserController)ShowLogin(){
-	this.Data["data"] = "heheh"
+	userName := this.Ctx.GetCookie("userName")
+	if userName == ""{
+		this.Data["userName"] = ""
+		this.Data["checked"] = ""
+	}else{
+		this.Data["userName"] = userName
+		this.Data["checked"] = "checked"
+	}
 	this.TplName = "login.html"
 }
 func(this*UserController)HandleLogin(){
@@ -84,5 +91,12 @@ func(this*UserController)HandleLogin(){
 
 	//4.返回页面
 	//this.Ctx.WriteString("登录成功")
+	data := this.GetString("remember")
+	beego.Info(data)
+	if data == "on"{
+		this.Ctx.SetCookie("userName",userName,100)
+	}else {
+		this.Ctx.SetCookie("userName",userName,-1)
+	}
 	this.Redirect("/showArticleList",302)
 }

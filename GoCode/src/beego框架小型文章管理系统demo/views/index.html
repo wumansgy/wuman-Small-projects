@@ -11,6 +11,9 @@
             $(".dels").click(function () {
                 if(!confirm("是否确认删除")){return false}
             })
+            $("#select").change(function () {
+                $("#form").submit()
+            })
         }
     </script>
 
@@ -44,12 +47,11 @@
         </div>
         <div class="pannel">
             <span class="sel_label">请选择文章分类：</span>
-            <select name="select" id="select" class="sel_opt">
-                        <option selected="true">财经新闻</option>
-                <option>体育新闻</option>
-                <option>科技新闻</option>
-            </select>
-
+            <form method="get" action="/showArticleList" id="form">
+                <select name="select" id="select" class="sel_opt">
+                         {{range .types}}   <option selected="true">{{.TypeName}}</option>{{end}}
+                </select>
+            </form>
             <table class="common_table">
                 <tr>
                     <th width="43%">文章标题</th>
@@ -69,7 +71,7 @@
                         <td>{{$val.Acount}}</td>
                         <td><a href="/deleteArticle?articleId={{$val.Id}}" class="dels">删除</a></td>
                         <td><a href="/updateArticle?articleId={{$val.Id}}">编辑</a></td>
-                        <td>财经新闻</td>
+                        <td>{{$val.ArticleType.TypeName}}</td>
                     </tr>
                 {{end}}
             </table>

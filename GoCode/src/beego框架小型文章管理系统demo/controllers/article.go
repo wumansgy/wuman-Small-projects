@@ -43,7 +43,20 @@ func(this*ArticleController)ShowArticleList(){
 	//起始位置计算
 	start := (pageIndex - 1)*pageSize
 
-	qs.Limit(pageSize,start).All(&articles)
+	//qs.Limit(pageSize,start).RelatedSel("ArticleType").All(&articles)
+
+
+
+	//获取文章类型
+	var types []models.ArticleType
+	o.QueryTable("ArticleType").All(&types)
+	this.Data["types"] = types
+
+	//根据选中的类型查询相应类型文章
+	typeName := this.GetString("select")
+	beego.Info(typeName)
+	qs.Limit(pageSize,start).RelatedSel("ArticleType").Filter("ArticleType__TypeName",typeName).All(&articles)
+
 
 
 
@@ -57,6 +70,14 @@ func(this*ArticleController)ShowArticleList(){
 
 //展示添加文章页面
 func(this*ArticleController)ShowAddArticle(){
+	//查询所有类型数据，并展示
+	o := orm.NewOrm()
+
+	var types []models.ArticleType
+	o.QueryTable("ArticleType").All(&types)
+
+	//传递数据
+	this.Data["types"] = types
 	this.TplName = "add.html"
 }
 
@@ -114,6 +135,15 @@ func(this*ArticleController)HandleAddArticle(){
 	article.ArtiName = articleName
 	article.Acontent = content
 	article.Aimg = "/static/img/"+fileName
+	//给文章添加类型
+	//获取类型数据
+	typeName := this.GetString("select")
+	//根据名称查询类型
+	var articleType models.ArticleType
+	articleType.TypeName = typeName
+	o.Read(&articleType,"TypeName")
+
+	article.ArticleType = &articleType
 
 	o.Insert(&article)
 

@@ -18,7 +18,7 @@ func (c *MainController) Get() {
 }
 
 func(c*MainController)Post(){
-	c.Data["data"] = "我最棒最棒"
+	c.Data["data"] = "上海一期最棒"
 	c.TplName = "test.html"
 }
 func(c*MainController)ShowGet(){
