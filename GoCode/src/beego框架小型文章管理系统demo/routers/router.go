@@ -23,6 +23,7 @@ func init() {
     beego.Router("/deleteArticle",&controllers.ArticleController{},"get:DeleteArticle")
     //添加分类
     beego.Router("/addType",&controllers.ArticleController{},"get:ShowAddType;post:HandleAddType")
-
+    //退出登录
+    beego.Router("/logout",&controllers.UserController{},"get:Logout")
 
 }

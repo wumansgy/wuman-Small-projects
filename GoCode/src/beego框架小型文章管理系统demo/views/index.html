@@ -22,13 +22,13 @@
 
     <div class="header">
         <a href="#" class="logo fl"><img src="/static/img/logo.png" alt="logo"></a>
-        <a href="#" class="logout fr">退 出</a>
+        <a href="/logout" class="logout fr">退 出</a>
     </div>
 
     <div class="side_bar">
         <div class="user_info">
             <img src="/static/img/person.png" alt="张大山">
-            <p>欢迎你 <em>李雷</em></p>
+            <p>欢迎你 <em>{{.userName}}</em></p>
         </div>
 
         <div class="menu_con">
@@ -49,7 +49,13 @@
             <span class="sel_label">请选择文章分类：</span>
             <form method="get" action="/showArticleList" id="form">
                 <select name="select" id="select" class="sel_opt">
-                         {{range .types}}   <option selected="true">{{.TypeName}}</option>{{end}}
+                         {{range .types}}
+                                {{if compare .TypeName $.typeName}}
+                                    <option selected="true">{{.TypeName}}</option>
+                                {{else}}
+                                    <option>{{.TypeName}}</option>
+                                {{end}}
+                         {{end}}
                 </select>
             </form>
             <table class="common_table">
@@ -77,10 +83,10 @@
             </table>
 
             <ul class="pagenation">
-                <li><a href="/showArticleList?pageIndex=1">首页</a></li>
-                <li><a href="/showArticleList?pageIndex={{.pageIndex | prepage }}">上一页 </a> </li>
-                <li> <a href="/showArticleList?pageIndex={{nextpage .pageIndex .pageCount}}">下一页</a></li>
-                <li><a href="/showArticleList?pageIndex={{.pageCount}}">末页</a></li>
+                <li><a href="/showArticleList?pageIndex=1&select={{.typeName}}">首页</a></li>
+                <li><a href="/showArticleList?pageIndex={{.pageIndex | prepage }}&select={{.typeName}}">上一页 </a> </li>
+                <li> <a href="/showArticleList?pageIndex={{nextpage .pageIndex .pageCount}}&select={{.typeName}}">下一页</a></li>
+                <li><a href="/showArticleList?pageIndex={{.pageCount}}&select={{.typeName}}">末页</a></li>
                 <li>共{{.count}}条记录/共{{.pageCount}}页/当前{{.pageIndex}}页</li>
             </ul>
         </div>

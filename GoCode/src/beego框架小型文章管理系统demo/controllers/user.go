@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"shanghaiyiqi/models"
+	"encoding/base64"
 )
 
 type UserController struct {
@@ -51,11 +52,13 @@ func(this*UserController)HandlePost(){
 //展示登录页面
 func(this*UserController)ShowLogin(){
 	userName := this.Ctx.GetCookie("userName")
+	data,_ := base64.StdEncoding.DecodeString(userName)
+	beego.Info(userName)
 	if userName == ""{
 		this.Data["userName"] = ""
 		this.Data["checked"] = ""
 	}else{
-		this.Data["userName"] = userName
+		this.Data["userName"] = string(data)
 		this.Data["checked"] = "checked"
 	}
 	this.TplName = "login.html"
@@ -94,9 +97,20 @@ func(this*UserController)HandleLogin(){
 	data := this.GetString("remember")
 	beego.Info(data)
 	if data == "on"{
-		this.Ctx.SetCookie("userName",userName,100)
+		temp := base64.StdEncoding.EncodeToString([]byte(userName))
+		this.Ctx.SetCookie("userName",temp,100)
 	}else {
 		this.Ctx.SetCookie("userName",userName,-1)
 	}
+
+	this.SetSession("userName",userName)
 	this.Redirect("/showArticleList",302)
+}
+
+//退出登录
+func(this*UserController)Logout(){
+	//删除session
+	this.DelSession("userName")
+	//跳转登录页面
+	this.Redirect("/login",302)
 }

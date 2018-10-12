@@ -16,6 +16,13 @@ type ArticleController struct {
 
 //展示文章列表页
 func(this*ArticleController)ShowArticleList(){
+	//session判断
+	userName := this.GetSession("userName")
+	if userName == nil{
+		this.Redirect("/login",302)
+		return
+	}
+
 	//获取数据
 	//高级查询
 	//指定表
@@ -27,11 +34,12 @@ func(this*ArticleController)ShowArticleList(){
 	//	beego.Info("查询数据错误")
 	//}
 	//查询总记录数
-	count,_ := qs.Count()
+	typeName := this.GetString("select")
+	var count int64
+
 	//获取总页数
 	pageSize := 2
 
-	pageCount := math.Ceil(float64(count) / float64(pageSize))
 //获取页码
 	pageIndex,err:= this.GetInt("pageIndex")
 	if err != nil{
@@ -45,7 +53,12 @@ func(this*ArticleController)ShowArticleList(){
 
 	//qs.Limit(pageSize,start).RelatedSel("ArticleType").All(&articles)
 
-
+	if typeName == ""{
+		count,_ = qs.Count()
+	}else{
+		count,_ = qs.Limit(pageSize,start).RelatedSel("ArticleType").Filter("ArticleType__TypeName",typeName).Count()
+	}
+	pageCount := math.Ceil(float64(count) / float64(pageSize))
 
 	//获取文章类型
 	var types []models.ArticleType
@@ -53,14 +66,21 @@ func(this*ArticleController)ShowArticleList(){
 	this.Data["types"] = types
 
 	//根据选中的类型查询相应类型文章
-	typeName := this.GetString("select")
+
 	beego.Info(typeName)
-	qs.Limit(pageSize,start).RelatedSel("ArticleType").Filter("ArticleType__TypeName",typeName).All(&articles)
+	if typeName == ""{
+		qs.Limit(pageSize,start).All(&articles)
+
+	}else {
+		qs.Limit(pageSize,start).RelatedSel("ArticleType").Filter("ArticleType__TypeName",typeName).All(&articles)
+	}
 
 
 
 
 	//传递数据
+	this.Data["userName"] = userName.(string)
+	this.Data["typeName"] = typeName
 	this.Data["pageIndex"] = pageIndex
 	this.Data["pageCount"] = int(pageCount)
 	this.Data["count"] = count
@@ -165,14 +185,44 @@ func(this*ArticleController)ShowArticleDetail(){
 	var article models.Article
 	article.Id = id
 
-	o.Read(&article)
-
+	//o.Read(&article)
+	o.QueryTable("Article").RelatedSel("ArticleType").Filter("Id",id).One(&article)
 	//修改阅读量
 	article.Acount += 1
 	o.Update(&article)
 
-	//返回视图页面
+	//多对多插入浏览记录
+	//1获取orm对象
+
+	//2获取操作对象
+	//3获取对多对操作对象
+	//4获取插入对象
+	//5插入
+
+	m2m :=o.QueryM2M(&article,"Users")
+	userName := this.GetSession("userName")
+	if userName == nil{
+		this.Redirect("/login",302)
+		return
+	}
+	var user models.User
+	user.Name = userName.(string)
+	o.Read(&user,"Name")
+
+	//插入操作
+	m2m.Add(user)
+
+	//查询
+	//o.LoadRelated(&article,"Users")
+	var users []models.User
+	o.QueryTable("User").Filter("Articles__Article__Id",id).Distinct().All(&users)
+
+	this.Data["users"] = users
 	this.Data["article"] = article
+
+
+	//返回视图页面
+
 	this.TplName = "content.html"
 }
 
