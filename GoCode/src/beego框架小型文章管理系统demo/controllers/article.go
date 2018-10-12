@@ -85,6 +85,9 @@ func(this*ArticleController)ShowArticleList(){
 	this.Data["pageCount"] = int(pageCount)
 	this.Data["count"] = count
 	this.Data["articles"] = articles
+
+	//指定试图布局
+	this.Layout = "layout.html"
 	this.TplName = "index.html"
 }
 
@@ -222,7 +225,9 @@ func(this*ArticleController)ShowArticleDetail(){
 
 
 	//返回视图页面
-
+	userLayout := this.GetSession("userName")
+	this.Data["userName"] = userLayout.(string)
+	this.Layout = "layout.html"
 	this.TplName = "content.html"
 }
 
@@ -315,7 +320,7 @@ func (this*ArticleController)HandleUpdateArticle(){
 	o.Update(&article)
 
 	//返回视图
-	this.Redirect("/showArticleList",302)
+	this.Redirect("/article/showArticleList",302)
 }
 
 //删除文章处理
@@ -335,7 +340,7 @@ func(this*ArticleController)DeleteArticle(){
 	o.Delete(&article)
 
 	//返回视图
-	this.Redirect("/showArticleList",302)
+	this.Redirect("/article/showArticleList",302)
 }
 
 //展示添加类型页面
@@ -367,10 +372,26 @@ func(this*ArticleController)HandleAddType(){
 	o.Insert(&articleType)
 
 	//返回视图
-	this.Redirect("/addType",302)
+	this.Redirect("/article/addType",302)
 }
 
-
+//删除类型
+func(this*ArticleController)DeleteType(){
+	//获取数据
+	id,err:=this.GetInt("id")
+	//校验数据
+	if err != nil{
+		beego.Error("删除类型错误",err)
+		return
+	}
+	//处理数据
+	o := orm.NewOrm()
+	var articleType models.ArticleType
+	articleType.Id = id
+	o.Delete(&articleType)
+	//返回视图
+	this.Redirect("/article/addType",302)
+}
 
 
 

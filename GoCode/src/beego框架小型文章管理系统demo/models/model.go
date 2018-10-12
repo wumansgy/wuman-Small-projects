@@ -25,7 +25,7 @@ type Article struct {
 	Acontent string `orm:"size(500)"`
 	Aimg string  `orm:"size(100)"`
 
-	ArticleType *ArticleType `orm:"rel(fk)"`
+	ArticleType *ArticleType `orm:"rel(fk);on_delete(set_null);null"`
 	Users []*User `orm:"rel(m2m)"`
 }
 

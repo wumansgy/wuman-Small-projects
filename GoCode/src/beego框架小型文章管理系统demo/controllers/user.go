@@ -104,7 +104,7 @@ func(this*UserController)HandleLogin(){
 	}
 
 	this.SetSession("userName",userName)
-	this.Redirect("/showArticleList",302)
+	this.Redirect("/article/showArticleList",302)
 }
 
 //退出登录

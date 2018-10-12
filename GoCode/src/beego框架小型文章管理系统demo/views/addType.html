@@ -44,7 +44,7 @@
                     <tr>
                         <td>{{.Id}}</td>
                         <td>{{.TypeName}}</td>
-                        <td><a href="javascript:;" class="edit">删除</a></td>
+                        <td><a href="/article/deleteType?id={{.Id}}" class="edit">删除</a></td>
                     </tr>
                 {{end}}
 
@@ -53,7 +53,7 @@
 
                 <tr>
                     <td colspan="3">
-                    <form method="post" action="/addType">
+                    <form method="post" action="/article/addType">
                         <input type="text" class="type_txt" placeholder="添加分类" name="typeName">
                         <input type="submit" class="addtype" value="增加分类">
                     </form>
